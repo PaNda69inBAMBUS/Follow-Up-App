@@ -14,14 +14,15 @@ npm run preview  # serve dist/ on http://localhost:4173 to try the production bu
 ```
 
 ## Put it on the iPhone
-1. Host the contents of `dist/` on any static HTTPS host (GitHub Pages, Netlify, Cloudflare Pages…).
-   Only app code is uploaded — client data never leaves the phone.
-2. On the iPhone open the address in **Safari** → Share → **Add to Home Screen**.
-3. Open it from the home screen icon (not from Safari), then Settings → Restore from backup.
+The app is published at **https://panda69inbambus.github.io/Follow-Up-App/** (GitHub Pages).
+Only app code is online — client data never leaves the phone.
+1. On the iPhone open the address in **Safari** → Share → **Add to Home Screen**.
+2. Open it from the home screen icon (not from Safari), then Settings → Restore from backup if needed.
 
 ## New versions
-1. Increase `version` in `package.json`, then `npm run build` and upload `dist/` again.
-2. The phone downloads the new version in the background the next time the app is opened with
+1. Increase `version` in `package.json` and commit.
+2. Push to `main`: GitHub Actions (`.github/workflows/deploy.yml`) tests, builds and publishes it.
+3. The phone downloads the new version in the background the next time the app is opened with
    internet, and uses it from the start after that. Data is kept.
 
 ## Code layout
