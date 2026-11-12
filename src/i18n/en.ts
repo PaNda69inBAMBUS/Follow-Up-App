@@ -287,7 +287,33 @@ export const en = {
   drag_handle: 'Drag to reorder',
   change_date: 'Change date',
 
-  // Settings / backup
+  // Settings
+  appearance: 'Appearance',
+  theme_system: 'System',
+  theme_light: 'Light',
+  theme_dark: 'Dark',
+  theme_system_hint: "Follows your phone's light/dark setting",
+  style: 'Style',
+  style_solid: 'Solid',
+  style_glass: 'Glass',
+  style_glass_hint: 'Airy, see-through cards over a soft glow',
+  style_solid_hint: 'Classic opaque cards',
+  glass_transparency: 'Transparency',
+  glass_less: 'Frosted',
+  glass_more: 'Clear',
+  language: 'Language',
+  language_en: 'English',
+  language_ro: 'Română',
+  about: 'About',
+  version: 'Version %s',
+  backup_last: 'Last backup: %s',
+  backup_never: 'No backup yet',
+  install_title: 'Add to Home Screen',
+  install_text:
+    'In Safari, tap the Share button, then “Add to Home Screen”. The app then opens full-screen, works offline, and iPhone keeps its data safe.',
+  install_installed: 'Installed on this phone ✓',
+
+  // Backup
   backup: 'Backup',
   backup_desc:
     "Saves all clients, check-ins, nutrition plans, prospects and photos into one file. Save it to iCloud Drive or send it to yourself so it's safe if you lose or change your phone.",

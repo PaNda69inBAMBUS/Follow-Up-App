@@ -14,6 +14,7 @@ import { SettingsScreen } from './screens/Settings';
 import { SnackbarProvider } from './ui/components';
 import { Icon, type IconName } from './ui/icons';
 import { navigate, paths, replace, useRoute, type Route, type TabName } from './ui/router';
+import { useSetting } from './ui/settings';
 
 const TABS: { name: TabName; label: TextKey; icon: IconName; path: string }[] = [
   { name: 'home', label: 'nav_home', icon: 'home', path: paths.home() },
@@ -41,6 +42,8 @@ function screenFor(route: Route): ReactNode {
 export function App() {
   const route = useRoute();
   const isTab = TABS.some((tab) => tab.name === route.name);
+  // Changing the language re-draws every screen with the new texts.
+  const language = useSetting('language');
 
   useEffect(() => {
     requestPersistentStorage();
@@ -52,7 +55,7 @@ export function App() {
   }, [route.name, 'clientId' in route ? route.clientId : null]);
 
   return (
-    <SnackbarProvider>
+    <SnackbarProvider key={language}>
       <div className={`app${isTab ? ' app--tabs' : ''}`}>{screenFor(route)}</div>
       {isTab && (
         <nav className="nav">

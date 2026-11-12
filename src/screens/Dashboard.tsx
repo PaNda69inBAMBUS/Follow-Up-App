@@ -34,7 +34,10 @@ import {
   type FunnelPeriod,
 } from '../ui/dashboard';
 import { longDay } from '../ui/format';
+import { Icon } from '../ui/icons';
+import { isInstalled, isIos } from '../ui/pwa';
 import { navigate, paths } from '../ui/router';
+import { setSetting, useSetting } from '../ui/settings';
 
 const RANGES: ActivityRange[] = ['WEEKS', 'MONTHS'];
 const METRICS: ActivityMetric[] = ['NEW_CLIENTS', 'CHECK_INS', 'YOUR_WORK'];
@@ -68,12 +71,28 @@ export function DashboardScreen() {
   const [range, setRange] = useState(saved.range);
   const [metric, setMetric] = useState(saved.metric);
   const [period, setPeriod] = useState(saved.period);
+  const tipDismissed = useSetting('installTipDismissed');
 
   const now = today();
   const header = (
-    <ScreenHeader title={greeting()} subtitle={longDay(now)}>
-      <CircleIconButton icon="settings" label={t('settings')} onClick={() => navigate(paths.settings())} />
-    </ScreenHeader>
+    <>
+      <ScreenHeader title={greeting()} subtitle={longDay(now)}>
+        <CircleIconButton icon="settings" label={t('settings')} onClick={() => navigate(paths.settings())} />
+      </ScreenHeader>
+      {/* Opened in Safari on an iPhone: explain how to install (keeps data safe + works offline). */}
+      {isIos() && !isInstalled() && !tipDismissed && (
+        <div className="install-tip">
+          <span className="install-tip__icon">📲</span>
+          <div className="grow">
+            <div className="title-sm">{t('install_title')}</div>
+            <div className="text-sm">{t('install_text')}</div>
+          </div>
+          <button type="button" className="search__clear" aria-label={t('dismiss')} onClick={() => setSetting('installTipDismissed', true)}>
+            <Icon name="close" size={18} />
+          </button>
+        </div>
+      )}
+    </>
   );
   if (!data) return <div className="screen">{header}</div>;
 

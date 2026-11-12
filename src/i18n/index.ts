@@ -1,9 +1,12 @@
+import { getSettings } from '../ui/settings';
 import { en, type Dictionary, type Plural, type TextKey } from './en';
+import { ro } from './ro';
 
-/** The app language; Romanian is added in step 4. */
-const dictionaries: Record<string, Dictionary> = { en };
-let lang = 'en';
-export const locale = () => (lang === 'ro' ? 'ro-RO' : 'en-GB');
+const dictionaries: Record<string, Dictionary> = { en, ro };
+
+/** The app language comes from Settings (default: the phone's language). */
+const lang = () => getSettings().language;
+export const locale = () => (lang() === 'ro' ? 'ro-RO' : 'en-GB');
 
 /** Fills %s / %d / %1$s placeholders in order (or by number). "%%" becomes "%". */
 export function fill(template: string, args: unknown[]): string {
@@ -16,7 +19,7 @@ export function fill(template: string, args: unknown[]): string {
 }
 
 function lookup(key: TextKey): string | Plural {
-  return dictionaries[lang]?.[key] ?? en[key];
+  return dictionaries[lang()]?.[key] ?? en[key];
 }
 
 /** Translated text: t('client_since', date, duration). */
