@@ -34,5 +34,5 @@ public/fonts/     Plus Jakarta Sans (copied from the Android app)
 ## Progress
 1. ✅ Data layer + backup import/export (tested with an Android-format backup)
 2. ✅ Clients, follow-ups, nutrition screens, program checklist, photos (Home is a temporary backup page)
-3. Prospects + dashboard (Your Work, Appointments)
+3. ✅ Prospects + dashboard (Your Work, Appointments, most active, attention lists); backup lives in Settings
 4. Settings, Romanian/English, dark mode, home-screen icon + offline (PWA)

@@ -1,23 +1,14 @@
 /*
- * Temporary Home page until the dashboard arrives in step 3: what's on this device plus
- * backup import / export, so real data from the Android phone can be loaded.
+ * Settings. For now: backup export / restore (theme, language and style come in step 4).
  */
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useRef, useState } from 'react';
 import { db } from '../data';
 import { backupFileName, BackupError, exportBackup, readBackupFile, restoreBackup, type BackupContent } from '../data/backup';
-import { today } from '../data/dates';
 import { t } from '../i18n';
 import { Card, ConfirmDialog, ScreenHeader, useSnackbar } from '../ui/components';
-import { longDay } from '../ui/format';
+import { goBack, paths } from '../ui/router';
 
-function greeting(): string {
-  const h = new Date().getHours();
-  return t(h < 12 ? 'greeting_morning' : h < 18 ? 'greeting_afternoon' : 'greeting_evening');
-}
-
-export function HomeScreen() {
-  const clientCount = useLiveQuery(() => db.clients.count());
+export function SettingsScreen() {
   const [pending, setPending] = useState<BackupContent | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const snackbar = useSnackbar();
@@ -66,18 +57,11 @@ export function HomeScreen() {
 
   return (
     <div className="screen">
-      <ScreenHeader title={greeting()} subtitle={longDay(today())} />
-      <div className="screen__content screen__content--tabs">
-        <div className="hero">
-          <div className="hero__label">{t('nav_clients')}</div>
-          <div className="hero__value">{clientCount ?? '–'}</div>
-        </div>
-
-        <p className="muted text-md mt-16">{t('dashboard_coming')}</p>
-
-        <Card className="mt-12" padding={18}>
+      <ScreenHeader title={t('settings')} onBack={() => goBack(paths.home())} />
+      <div className="screen__content">
+        <Card padding={18}>
           <h2 className="title-lg">{t('backup')}</h2>
-          <p className="text-sm muted mt-4">{t('data_on_device')}</p>
+          <p className="text-sm muted mt-4">{t('backup_desc')}</p>
           <div className="stack-10 mt-12">
             <button type="button" className="primary-btn" onClick={onExport}>
               {t('export_backup')}
@@ -88,6 +72,7 @@ export function HomeScreen() {
           </div>
           <input ref={fileInput} type="file" accept=".json,application/json,text/plain" hidden onChange={(e) => onPick(e.target.files?.[0])} />
         </Card>
+        <p className="text-sm muted center mt-16">{t('data_on_device')}</p>
       </div>
 
       {pending && (

@@ -13,7 +13,7 @@ import {
 import { createPortal } from 'react-dom';
 import { t } from '../i18n';
 import { today, type LocalDate } from '../data/dates';
-import type { Client, ClientStatus } from '../data/types';
+import type { Client, ClientStatus, Prospect, ProspectStatus } from '../data/types';
 import { dayOfMonth, durationText, fmt, pretty, relativeDayText, shortMonth, statusLabel } from './format';
 import { Icon, type IconName } from './icons';
 import { usePhotoUrl } from './photo';
@@ -510,6 +510,59 @@ export function FollowUpItem({
       </div>
     </Card>
   );
+}
+
+// ---------- Prospects ----------
+
+export const prospectStatusLabel = (s: ProspectStatus) =>
+  t(s === 'APPOINTMENT' ? 'prospect_status_appointment' : 'prospect_status_no_purchase');
+
+/** "📅 Tomorrow 15:00", "Appointment passed · 7 Nov 2026", "Came on 3 Nov 2026 · didn't buy". */
+export function prospectSubtitle(p: Prospect, now: LocalDate = today()): string {
+  const time = p.appointmentTime.trim() ? ` ${p.appointmentTime.trim()}` : '';
+  if (p.status === 'NO_PURCHASE') return t('came_on', pretty(p.appointmentDate));
+  if (p.appointmentDate < now) return t('appointment_passed', pretty(p.appointmentDate));
+  return t('appointment_on', relativeDayText(p.appointmentDate, now) + time);
+}
+
+/** Round green phone button that opens the dialer. */
+export function CallButton({ phone, size = 40 }: { phone: string; size?: number }) {
+  return (
+    <a
+      className="icon-btn icon-btn--call"
+      style={{ width: size, height: size }}
+      href={`tel:${phone.replace(/[^\d+]/g, '')}`}
+      aria-label={t('call')}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <Icon name="phone" />
+    </a>
+  );
+}
+
+export function ProspectItem({ prospect, onClick }: { prospect: Prospect; onClick: () => void }) {
+  const overdue = prospect.status === 'APPOINTMENT' && prospect.appointmentDate < today();
+  return (
+    <Card onClick={onClick} padding={14} className="list-item">
+      <div className="row">
+        <Avatar name={prospect.name} />
+        <div className="grow min0">
+          <div className="title-md ellipsis">{prospect.name}</div>
+          <div className={cx('text-sm ellipsis', overdue ? 'error' : 'muted')}>{prospectSubtitle(prospect)}</div>
+        </div>
+        <span className={cx('pill', prospect.status === 'APPOINTMENT' ? 'pill--primary-soft' : 'pill--secondary-soft')}>
+          {prospectStatusLabel(prospect.status)}
+        </span>
+        {prospect.phone.trim() && <CallButton phone={prospect.phone} />}
+      </div>
+    </Card>
+  );
+}
+
+/** "↑ 3", "↓ 1", "→ 0" — green up, red down, grey flat. */
+export function DeltaPill({ delta, suffix = '' }: { delta: number; suffix?: string }) {
+  const [tone, arrow] = delta > 0 ? ['good', '↑'] : delta < 0 ? ['bad', '↓'] : ['neutral', '→'];
+  return <span className={`chip chip--sm chip--${tone}`}>{`${arrow} ${Math.abs(delta)}${suffix}`}</span>;
 }
 
 export function ProgressBar({ progress }: { progress: number }) {

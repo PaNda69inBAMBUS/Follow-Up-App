@@ -5,10 +5,12 @@ import { ClientDetailScreen } from './screens/ClientDetail';
 import { ClientEditScreen } from './screens/ClientEdit';
 import { ClientListScreen } from './screens/ClientList';
 import { FollowUpEditScreen } from './screens/FollowUpEdit';
+import { DashboardScreen } from './screens/Dashboard';
 import { FollowUpsScreen } from './screens/FollowUps';
-import { HomeScreen } from './screens/Home';
 import { NutritionEditScreen } from './screens/NutritionEdit';
 import { ProgramScreen } from './screens/Program';
+import { ProspectEditScreen, ProspectListScreen } from './screens/Prospects';
+import { SettingsScreen } from './screens/Settings';
 import { SnackbarProvider } from './ui/components';
 import { Icon, type IconName } from './ui/icons';
 import { navigate, paths, replace, useRoute, type Route, type TabName } from './ui/router';
@@ -16,13 +18,17 @@ import { navigate, paths, replace, useRoute, type Route, type TabName } from './
 const TABS: { name: TabName; label: TextKey; icon: IconName; path: string }[] = [
   { name: 'home', label: 'nav_home', icon: 'home', path: paths.home() },
   { name: 'clients', label: 'nav_clients', icon: 'person', path: paths.clients() },
+  { name: 'prospects', label: 'nav_prospects', icon: 'face', path: paths.prospects() },
   { name: 'followups', label: 'nav_followups', icon: 'calendar', path: paths.followups() },
 ];
 
 function screenFor(route: Route): ReactNode {
   switch (route.name) {
-    case 'home': return <HomeScreen />;
+    case 'home': return <DashboardScreen />;
     case 'clients': return <ClientListScreen />;
+    case 'prospects': return <ProspectListScreen />;
+    case 'prospectEdit': return <ProspectEditScreen key={route.prospectId ?? 'new'} prospectId={route.prospectId} />;
+    case 'settings': return <SettingsScreen />;
     case 'followups': return <FollowUpsScreen />;
     case 'client': return <ClientDetailScreen key={route.clientId} clientId={route.clientId} />;
     case 'clientEdit': return <ClientEditScreen key={route.clientId ?? 'new'} clientId={route.clientId} />;
@@ -69,7 +75,13 @@ export function App() {
               );
             })}
           </div>
-          <button type="button" className="nav__add" aria-label={t('add_client')} onClick={() => navigate(paths.newClient())}>
+          {/* "+" adds a prospect on the Prospects page, a client everywhere else. */}
+          <button
+            type="button"
+            className="nav__add"
+            aria-label={t(route.name === 'prospects' ? 'add_prospect' : 'add_client')}
+            onClick={() => navigate(route.name === 'prospects' ? paths.newProspect() : paths.newClient())}
+          >
             <Icon name="add" size={30} />
           </button>
         </nav>

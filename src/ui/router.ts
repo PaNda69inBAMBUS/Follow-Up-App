@@ -13,10 +13,13 @@ export type Route =
   | { name: 'clientEdit'; clientId: number | null }
   | { name: 'followUpEdit'; clientId: number; followUpId: number | null }
   | { name: 'planEdit'; clientId: number; planId: number | null }
-  | { name: 'program'; clientId: number };
+  | { name: 'program'; clientId: number }
+  | { name: 'prospects' }
+  | { name: 'prospectEdit'; prospectId: number | null }
+  | { name: 'settings' };
 
 /** The pages shown with the bottom navigation bar. */
-export const TAB_ROUTES = ['home', 'clients', 'followups'] as const;
+export const TAB_ROUTES = ['home', 'clients', 'prospects', 'followups'] as const;
 export type TabName = (typeof TAB_ROUTES)[number];
 
 export const paths = {
@@ -31,6 +34,10 @@ export const paths = {
   newPlan: (clientId: number) => `/client/${clientId}/plan/new`,
   plan: (clientId: number, id: number) => `/client/${clientId}/plan/${id}`,
   program: (clientId: number) => `/client/${clientId}/program`,
+  prospects: () => '/prospects',
+  newProspect: () => '/prospect/new',
+  prospect: (id: number) => `/prospect/${id}`,
+  settings: () => '/settings',
 };
 
 export function parse(path: string): Route {
@@ -38,6 +45,9 @@ export function parse(path: string): Route {
   const num = (s: string | undefined) => (s && /^\d+$/.test(s) ? Number(s) : null);
   if (p[0] === 'clients') return { name: 'clients' };
   if (p[0] === 'followups') return { name: 'followups' };
+  if (p[0] === 'prospects') return { name: 'prospects' };
+  if (p[0] === 'settings') return { name: 'settings' };
+  if (p[0] === 'prospect') return { name: 'prospectEdit', prospectId: num(p[1]) };
   if (p[0] === 'client') {
     if (p[1] === 'new') return { name: 'clientEdit', clientId: null };
     const id = num(p[1]);
