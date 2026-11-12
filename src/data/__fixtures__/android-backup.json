@@ -1,0 +1,96 @@
+{
+  "app": "ClientTracker",
+  "formatVersion": 1,
+  "exportedAt": "2026-11-10T09:30:00",
+  "clients": [
+    {
+      "name": "Ana Popescu",
+      "phone": "0722 111 222",
+      "email": "ana@example.com",
+      "startDate": "2026-09-01",
+      "goal": "Lose 8 kg",
+      "status": "ACTIVE",
+      "startWeight": 78.4,
+      "startBodyFat": 31.5,
+      "startMuscleMass": 26,
+      "followUpIntervalDays": 14,
+      "notes": "Prefers mornings \/ no dairy",
+      "fromAppointment": "2026-08-28",
+      "photoJpegBase64": "\/9j\/4AAQSkZJRgABAQAAAQABAAD\/2Q==",
+      "followUps": [
+        { "date": "2026-09-15", "completed": true, "weight": 77.1, "bodyFat": 30.8, "notes": "Good week" },
+        { "date": "2026-09-29", "completed": true, "weight": 76, "notes": "" },
+        { "date": "2026-11-20", "completed": false, "notes": "" }
+      ],
+      "nutritionPlans": [
+        {
+          "title": "Start plan",
+          "startDate": "2026-09-01",
+          "calories": 1800,
+          "protein": 120,
+          "carbs": 180,
+          "fat": 60,
+          "notes": "2 l water",
+          "current": false,
+          "startWeight": 78.4,
+          "endWeight": 76,
+          "meals": []
+        },
+        {
+          "title": "Phase 2",
+          "startDate": "2026-10-01",
+          "calories": 1650,
+          "protein": 130,
+          "notes": "",
+          "current": true,
+          "meals": [
+            { "type": "BREAKFAST", "time": "08:00", "foods": "Oats, whey", "calories": 400, "protein": 35 },
+            { "type": "LUNCH", "time": "13:00", "foods": "Chicken, rice, salad" },
+            { "type": "DINNER", "time": "", "foods": "Fish, vegetables", "fat": 15 }
+          ]
+        }
+      ],
+      "programTasks": [
+        { "kind": "NUTRITION_ASSIGNMENT", "number": 1, "done": true, "doneDate": "2026-09-03" },
+        { "kind": "NUTRITION_ASSIGNMENT", "number": 2, "done": false },
+        { "kind": "FIT_CLUB", "number": 0, "done": true, "doneDate": "2026-09-20" },
+        { "kind": "PERSONALISED_PLAN", "number": 0, "done": false }
+      ]
+    },
+    {
+      "name": "Ștefan Ionescu",
+      "phone": "",
+      "email": "",
+      "startDate": "2026-06-10",
+      "goal": "",
+      "status": "INACTIVE",
+      "followUpIntervalDays": 21,
+      "notes": "",
+      "followUps": [],
+      "nutritionPlans": [],
+      "programTasks": []
+    }
+  ],
+  "prospects": [
+    {
+      "name": "Maria Dobre",
+      "phone": "0733 000 111",
+      "email": "",
+      "status": "APPOINTMENT",
+      "appointmentDate": "2026-11-14",
+      "appointmentTime": "15:00",
+      "notes": "Friend of Ana",
+      "createdDate": "2026-11-08"
+    },
+    {
+      "name": "Radu Marin",
+      "phone": "",
+      "email": "",
+      "status": "NO_PURCHASE",
+      "appointmentDate": "2026-11-03",
+      "appointmentTime": "",
+      "notes": "",
+      "createdDate": "2026-10-30"
+    }
+  ]
+}
