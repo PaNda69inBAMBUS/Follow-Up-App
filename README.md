@@ -19,6 +19,10 @@ src/data/
   repository.ts   All data operations — mirrors Android's Repository.kt
   backup.ts       Backup import/export — SAME JSON format as the Android app
   dates.ts        'YYYY-MM-DD' date helpers
+src/i18n/         Texts (same keys as Android's strings.xml)
+src/ui/           Shared components, formatting, router (#/client/3…), icons, photos
+src/screens/      One file per screen (clients, client page, follow-ups, nutrition, program…)
+public/fonts/     Plus Jakarta Sans (copied from the Android app)
 ```
 
 ## Rules to keep
@@ -29,6 +33,6 @@ src/data/
 
 ## Progress
 1. ✅ Data layer + backup import/export (tested with an Android-format backup)
-2. Clients, follow-ups, nutrition screens
+2. ✅ Clients, follow-ups, nutrition screens, program checklist, photos (Home is a temporary backup page)
 3. Prospects + dashboard (Your Work, Appointments)
 4. Settings, Romanian/English, dark mode, home-screen icon + offline (PWA)

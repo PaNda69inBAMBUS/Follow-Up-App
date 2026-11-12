@@ -1,155 +1,79 @@
-/*
- * Step 1 — temporary "Data check" screen: shows what's stored on this device and lets you
- * import / export backups, to confirm the data layer works with real Android backups.
- * The real screens (clients, follow-ups, …) replace this in step 2.
- */
-import { useLiveQuery } from 'dexie-react-hooks';
-import { useEffect, useRef, useState } from 'react';
-import { db, repo, requestPersistentStorage } from './data';
-import {
-  backupFileName,
-  BackupError,
-  exportBackup,
-  readBackupFile,
-  restoreBackup,
-  type BackupContent,
-  type BackupStats,
-} from './data/backup';
+import { useEffect, type ReactNode } from 'react';
+import { requestPersistentStorage } from './data';
+import { t, type TextKey } from './i18n';
+import { ClientDetailScreen } from './screens/ClientDetail';
+import { ClientEditScreen } from './screens/ClientEdit';
+import { ClientListScreen } from './screens/ClientList';
+import { FollowUpEditScreen } from './screens/FollowUpEdit';
+import { FollowUpsScreen } from './screens/FollowUps';
+import { HomeScreen } from './screens/Home';
+import { NutritionEditScreen } from './screens/NutritionEdit';
+import { ProgramScreen } from './screens/Program';
+import { SnackbarProvider } from './ui/components';
+import { Icon, type IconName } from './ui/icons';
+import { navigate, paths, replace, useRoute, type Route, type TabName } from './ui/router';
+
+const TABS: { name: TabName; label: TextKey; icon: IconName; path: string }[] = [
+  { name: 'home', label: 'nav_home', icon: 'home', path: paths.home() },
+  { name: 'clients', label: 'nav_clients', icon: 'person', path: paths.clients() },
+  { name: 'followups', label: 'nav_followups', icon: 'calendar', path: paths.followups() },
+];
+
+function screenFor(route: Route): ReactNode {
+  switch (route.name) {
+    case 'home': return <HomeScreen />;
+    case 'clients': return <ClientListScreen />;
+    case 'followups': return <FollowUpsScreen />;
+    case 'client': return <ClientDetailScreen key={route.clientId} clientId={route.clientId} />;
+    case 'clientEdit': return <ClientEditScreen key={route.clientId ?? 'new'} clientId={route.clientId} />;
+    case 'followUpEdit': return <FollowUpEditScreen key={`${route.clientId}/${route.followUpId}`} {...route} />;
+    case 'planEdit': return <NutritionEditScreen key={`${route.clientId}/${route.planId}`} {...route} />;
+    case 'program': return <ProgramScreen key={route.clientId} clientId={route.clientId} />;
+  }
+}
 
 export function App() {
-  const counts = useLiveQuery(async () => ({
-    clients: await db.clients.count(),
-    checkIns: (await repo.completedFollowUps()).length,
-    pending: (await repo.pendingFollowUps()).length,
-    plans: await db.plans.count(),
-    meals: await db.meals.count(),
-    photos: await db.photos.count(),
-    prospects: await db.prospects.count(),
-  }));
-  const clients = useLiveQuery(() => repo.clients());
-
-  const [persistent, setPersistent] = useState<boolean | null>(null);
-  const [pending, setPending] = useState<BackupContent | null>(null);
-  const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
+  const route = useRoute();
+  const isTab = TABS.some((tab) => tab.name === route.name);
 
   useEffect(() => {
-    requestPersistentStorage().then(setPersistent);
+    requestPersistentStorage();
   }, []);
 
-  async function onPick(file: File | undefined) {
-    if (!file) return;
-    setMessage(null);
-    try {
-      setPending(await readBackupFile(file));
-    } catch (e) {
-      const reason = e instanceof BackupError ? e.reason : 'READ_FAILED';
-      setMessage({ text: reason === 'NOT_A_BACKUP' ? "That file isn't a Client Tracker backup." : "Couldn't read that file.", error: true });
-    } finally {
-      if (fileInput.current) fileInput.current.value = '';
-    }
-  }
-
-  async function onRestore() {
-    if (!pending) return;
-    try {
-      await restoreBackup(db, pending);
-      setMessage({ text: `Restored: ${summary(pending.stats)}` });
-    } catch (e) {
-      console.error(e);
-      setMessage({ text: 'Restore failed — your existing data was not changed.', error: true });
-    }
-    setPending(null);
-  }
-
-  async function onExport() {
-    const { json, stats } = await exportBackup(db);
-    const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
-    const a = Object.assign(document.createElement('a'), { href: url, download: backupFileName() });
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setMessage({ text: `Exported: ${summary(stats)}` });
-  }
+  // Each page starts at the top.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [route.name, 'clientId' in route ? route.clientId : null]);
 
   return (
-    <main>
-      <h1>Client Tracker</h1>
-      <p className="muted">Step 1 · data check</p>
-
-      <section className="card">
-        <h2>On this device</h2>
-        {counts ? (
-          <dl className="grid">
-            <Stat label="Clients" value={counts.clients} />
-            <Stat label="Check-ins done" value={counts.checkIns} />
-            <Stat label="Follow-ups open" value={counts.pending} />
-            <Stat label="Nutrition plans" value={counts.plans} />
-            <Stat label="Meals" value={counts.meals} />
-            <Stat label="Photos" value={counts.photos} />
-            <Stat label="Prospects" value={counts.prospects} />
-          </dl>
-        ) : (
-          <p className="muted">Loading…</p>
-        )}
-        <p className="muted small">
-          Storage:{' '}
-          {persistent == null ? 'checking…' : persistent ? 'protected from automatic clean-up ✓' : 'not protected yet (add to home screen)'}
-        </p>
-      </section>
-
-      <section className="card">
-        <h2>Backup</h2>
-        <div className="row">
-          <button onClick={() => fileInput.current?.click()}>Import backup…</button>
-          <button className="secondary" onClick={onExport}>Export backup</button>
-        </div>
-        <input ref={fileInput} type="file" accept=".json,application/json" hidden onChange={(e) => onPick(e.target.files?.[0])} />
-
-        {pending && (
-          <div className="confirm">
-            <p>
-              <strong>Replace all data on this device?</strong>
-              <br />
-              Backup{pending.exportedAt ? ` from ${pending.exportedAt.replace('T', ' ')}` : ''}: {summary(pending.stats)}
-            </p>
-            <div className="row">
-              <button className="danger" onClick={onRestore}>Replace</button>
-              <button className="secondary" onClick={() => setPending(null)}>Cancel</button>
-            </div>
+    <SnackbarProvider>
+      <div className={`app${isTab ? ' app--tabs' : ''}`}>{screenFor(route)}</div>
+      {isTab && (
+        <nav className="nav">
+          <div className="nav__bar">
+            {TABS.map((tab) => {
+              const selected = tab.name === route.name;
+              return (
+                <button
+                  key={tab.name}
+                  type="button"
+                  className={`nav__item${selected ? ' is-selected' : ''}`}
+                  aria-current={selected ? 'page' : undefined}
+                  aria-label={t(tab.label)}
+                  // Tabs swap in place, so "back" from a tab doesn't step through other tabs.
+                  onClick={() => (selected ? window.scrollTo({ top: 0, behavior: 'smooth' }) : replace(tab.path))}
+                >
+                  <Icon name={tab.icon} />
+                  <span className="nav__label">{t(tab.label)}</span>
+                </button>
+              );
+            })}
           </div>
-        )}
-        {message && <p className={message.error ? 'error' : 'ok'}>{message.text}</p>}
-      </section>
-
-      {clients && clients.length > 0 && (
-        <section className="card">
-          <h2>Clients</h2>
-          <ul className="list">
-            {clients.map((c) => (
-              <li key={c.id}>
-                <span>{c.name}</span>
-                <span className="muted small">
-                  {c.status === 'ACTIVE' ? 'Active' : 'Inactive'} · since {c.startDate}
-                  {c.fromAppointment ? ' · from appointment' : ''}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
+          <button type="button" className="nav__add" aria-label={t('add_client')} onClick={() => navigate(paths.newClient())}>
+            <Icon name="add" size={30} />
+          </button>
+        </nav>
       )}
-    </main>
+    </SnackbarProvider>
   );
-}
-
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div>
-      <dt>{label}</dt>
-      <dd>{value}</dd>
-    </div>
-  );
-}
-
-function summary(s: BackupStats): string {
-  return `${s.clients} clients, ${s.checkIns} check-ins, ${s.plans} plans, ${s.meals} meals, ${s.photos} photos, ${s.prospects} prospects`;
 }

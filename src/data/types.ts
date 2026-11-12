@@ -122,6 +122,8 @@ export function defaultTasks(clientId: number): ClientTask[] {
   ].map((t, i) => ({ ...t, position: i }));
 }
 
+export const DEFAULT_TASK_COUNT = 14;
+
 /** APPOINTMENT: has an appointment booked. NO_PURCHASE: came to the appointment but did not buy. */
 export type ProspectStatus = 'APPOINTMENT' | 'NO_PURCHASE';
 
